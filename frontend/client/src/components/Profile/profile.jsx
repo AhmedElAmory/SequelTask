@@ -9,29 +9,26 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import {
   Box,
   Typography,
-  TextField,
-  InputAdornment,
   IconButton,
-  Button,
   Avatar,
   ImageList,
   ImageListItem,
+  Divider,
 } from '@mui/material';
 
 import { useNavigate } from "react-router-dom";
 
+
 function Profile() {
   const navigate = useNavigate();
   const [values, setValues] = useState({});
-
   const [dialogOpen, setDialogOpen] = useState(false);
-
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
 
   const authHeader = () => {
-    const token = JSON.parse(localStorage.getItem('token'));
+    let token = JSON.parse(localStorage.getItem('token'));
 
     if (token) {
       return {
@@ -39,7 +36,15 @@ function Profile() {
         Type: JSON.parse(localStorage.getItem('type'))
       };
     } else {
-      return {};
+      token = JSON.parse(sessionStorage.getItem('token'));
+      if(token){
+        return {
+          Authorization: 'Bearer ' + token,
+          Type: JSON.parse(sessionStorage.getItem('type'))
+        };
+      }else{
+        return {};
+      }
     }
   }
 
@@ -56,6 +61,21 @@ function Profile() {
     fetchData();
 
   }, []);
+
+  const convertBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const fileReader = new FileReader();
+      fileReader.readAsDataURL(file);
+
+      fileReader.onload = () => {
+        resolve(fileReader.result);
+      };
+
+      fileReader.onerror = (error) => {
+        reject(error);
+      };
+    });
+  };
 
   const handleClickOpen = () => {
     setDialogOpen(true);
@@ -83,12 +103,23 @@ function Profile() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     localStorage.removeItem('type');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('user');
+    sessionStorage.removeItem('type');
     handleCloseMenu();
     navigate("/login");
   };
 
-  const handlePicture = () => {
-    console.log("Handle Picture");
+  const handlePicture = async (e) => {
+
+    const file = e.target.files[0];
+    const base64 = await convertBase64(file);
+
+    console.log(base64);
+    setValues({ ...values, profilePicture: base64 });
+
+    await axios.post("http://localhost:8000/uploadpicture", { picture: base64 }, { headers: authHeader() });
+
     handleCloseMenu();
   };
 
@@ -202,7 +233,6 @@ function Profile() {
 
           <IconButton
             onClick={handleMenuClick}
-
           >
             <MoreVertIcon />
           </IconButton>
@@ -211,17 +241,25 @@ function Profile() {
             open={open}
             onClose={handleCloseMenu}
           >
-            <MenuItem onClick={handlePicture}>
-              Change Profile Picture
-            </MenuItem>
+              <MenuItem
+                component="label"
+              >
+                Change Profile Picture
+                <input
+                  type="file"
+                  onChange={handlePicture}
+                  hidden
+                />
+              </MenuItem>
+              <Divider />
             <MenuItem onClick={handleLogOut}>
-              log out
+              Log out
             </MenuItem>
           </Menu>
 
         </Box>
 
-        <Avatar sx={{ width: 100, height: 100 }} alt="Remy Sharp" src="/static/images/avatar/1.jpg" />
+        <Avatar sx={{ width: 100, height: 100 }} alt="Remy Sharp" src={values.profilePicture} />
 
         <Typography variant="h6" component="div" gutterBottom sx={{ fontWeight: 'bold', marginBottom: 3 }}>
           {values.username}
@@ -354,6 +392,8 @@ function Profile() {
 
       </Box>
       <EditBio open={dialogOpen} close={handleClose} confirm={handleConfirm} oldBio={values.bio}></EditBio>
+
+
 
     </div>
   );

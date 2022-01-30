@@ -6,7 +6,8 @@ import {
   TextField,
   InputAdornment,
   IconButton,
-  Button
+  Button,
+  Checkbox,
 } from '@mui/material';
 import { GoogleLogin } from 'react-google-login';
 import GoogleIcon from '@mui/icons-material/Google';
@@ -34,6 +35,7 @@ function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [usernameState, setUsernameState] = useState();
   const [passwordState, setPasswordState] = useState();
+  const [checked, setChecked] = useState(false);
 
   const handleChange = (prop) => (event) => {
     setValues({ ...values, [prop]: event.target.value });
@@ -55,9 +57,19 @@ function Login() {
         setPasswordState("wrong");
         return;
       } else {
-        localStorage.setItem("token", JSON.stringify(res.data.token));
-        localStorage.setItem("user", JSON.stringify(res.data.username));
-        localStorage.setItem("type", JSON.stringify("jwt"));
+        if (checked) {
+          localStorage.setItem("token", JSON.stringify(res.data.token));
+          localStorage.setItem("user", JSON.stringify(res.data.username));
+          localStorage.setItem("type", JSON.stringify("jwt"));
+          sessionStorage.setItem("token", JSON.stringify(res.data.token));
+          sessionStorage.setItem("user", JSON.stringify(res.data.username));
+          sessionStorage.setItem("type", JSON.stringify("jwt"));
+        } else {
+          sessionStorage.setItem("token", JSON.stringify(res.data.token));
+          sessionStorage.setItem("user", JSON.stringify(res.data.username));
+          sessionStorage.setItem("type", JSON.stringify("jwt"));
+        }
+
         navigate("/profile");
       }
     } catch (err) {
@@ -71,9 +83,20 @@ function Login() {
     const user = res?.Ju.tf;
     const email = res?.Ju.zv;
 
-    localStorage.setItem("token", JSON.stringify(token));
-    localStorage.setItem("user", JSON.stringify(user));
-    localStorage.setItem("type", JSON.stringify("google"));
+    if (checked) {
+      localStorage.setItem("token", JSON.stringify(token));
+      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("type", JSON.stringify("google"));
+      sessionStorage.setItem("token", JSON.stringify(token));
+      sessionStorage.setItem("user", JSON.stringify(user));
+      sessionStorage.setItem("type", JSON.stringify("google"));
+    } else {
+
+
+      sessionStorage.setItem("token", JSON.stringify(token));
+      sessionStorage.setItem("user", JSON.stringify(user));
+      sessionStorage.setItem("type", JSON.stringify("google"));
+    }
 
     const details = {
       username: user,
@@ -105,6 +128,10 @@ function Login() {
     return false;
   }
 
+  const handleRemember = () => {
+    setChecked(!checked);
+  }
+
   return (
     <div>
       <Box
@@ -117,9 +144,6 @@ function Login() {
           marginTop: 20,
           borderRadius: '25px',
           boxShadow: 5,
-          '&:hover': {
-            boxShadow: 24,
-          },
           padding: 4
 
         }}
@@ -161,11 +185,18 @@ function Login() {
           }}
           sx={{ width: 300 }}
         />
+        <br />
+        <Typography variant="h6" component="div" >
+          Remember Me
+          <Checkbox
+            checked={checked}
+            onChange={handleRemember} />
+        </Typography>
         <br></br>
         <Button
           variant="outlined"
           onClick={handleSubmit}
-          sx={{ marginTop: 5, marginBottom: 5 }}
+          sx={{ marginTop: 5, marginBottom: 3 }}
           disabled={validateFields() ? true : false}
         >
           Login
@@ -182,6 +213,16 @@ function Login() {
           onFailure={googleError}
           cookiePolicy="single_host_origin"
         />
+        <br />
+        <Button
+          variant="outlined"
+          onClick={() => {
+            navigate("/");
+          }}
+          sx={{ marginTop: 12 }}
+        >
+          I don't have an account
+        </Button>
 
       </Box>
     </div>

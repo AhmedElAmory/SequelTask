@@ -19,9 +19,9 @@ const userSchema = new Schema({
   bio: {
     type: String,
   },
-//   profilePicture: {
-
-//   }
+  profilePicture: {
+    type: String,
+  }
 }
 
 );

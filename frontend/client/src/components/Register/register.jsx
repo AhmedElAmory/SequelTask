@@ -16,6 +16,8 @@ import {
 
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 
+import { GoogleLogin } from 'react-google-login';
+import GoogleIcon from '@mui/icons-material/Google';
 
 import axios from 'axios';
 
@@ -41,11 +43,11 @@ function Register() {
   const handleChange = (prop) => (event) => {
     setValues({ ...values, [prop]: event.target.value });
   };
-  
+
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
   }
-  
+
   useEffect(() => {
     console.log(values);
     validateEmail(values['email']);
@@ -53,64 +55,91 @@ function Register() {
   });
 
   const validateEmail = async (email) => {
-    if(email===""){
+    if (email === "") {
       setEmailState("empty");
       return;
     }
 
-    let exists=false;
-    try{
-      let res = await axios.post("http://localhost:8000/checkemail", {email:values.email});
-      exists=res.data;
-    }catch(err){
+    let exists = false;
+    try {
+      let res = await axios.post("http://localhost:8000/checkemail", { email: values.email });
+      exists = res.data;
+    } catch (err) {
       console.log(err);
     }
 
-    if(!exists){
+    if (!exists) {
       var re = /\S+@\S+\.\S+/;
-      if(re.test(email)){
+      if (re.test(email)) {
         console.log("i am here");
         setEmailState("ok");
-      }else{
+      } else {
         setEmailState("wrong");
       }
-    }else{
+    } else {
       setEmailState("exists");
     }
 
   }
 
   const validateUsername = async (username) => {
-    if(username===""){
+    if (username === "") {
       setUsernameState("empty");
       return;
     }
 
-    let exists=false;
-    try{
-      let res = await axios.post("http://localhost:8000/checkusername", {username:values.username});
-      exists=res.data;
-    }catch(err){
+    let exists = false;
+    try {
+      let res = await axios.post("http://localhost:8000/checkusername", { username: values.username });
+      exists = res.data;
+    } catch (err) {
       console.log(err);
     }
 
-    if(!exists){
+    if (!exists) {
       setUsernameState("ok");
-    }else{
+    } else {
       setUsernameState("exists");
     }
 
   }
 
-  const validateFields = ()=>{
-    for(let value in values){
-      if(values[value]===""){
+  const validateFields = () => {
+    for (let value in values) {
+      if (values[value] === "") {
         return true;
       }
     }
-    if(emailState!=="ok"|usernameState!=="ok") return true;
+    if (emailState !== "ok" | usernameState !== "ok") return true;
     return false;
   }
+
+  const googleSuccess = async (res) => {
+    console.log(res);
+    const token = res?.tokenId;
+    const user = res?.Ju.tf;
+    const email = res?.Ju.zv;
+
+    localStorage.setItem("token", JSON.stringify(token));
+    localStorage.setItem("user", JSON.stringify(user));
+    localStorage.setItem("type", JSON.stringify("google"));
+
+    const details = {
+      username: user,
+      email: email,
+    }
+
+    await axios.post("http://localhost:8000/googleregisterlogin", details)
+
+    navigate("/profile")
+    try {
+
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const googleError = () => console.log('Google Sign In was unsuccessful. Try again later');
 
   return (
     <div>
@@ -124,9 +153,6 @@ function Register() {
           marginTop: 20,
           borderRadius: '25px',
           boxShadow: 5,
-          '&:hover': {
-            boxShadow: 24,
-          },
           padding: 4
 
         }}
@@ -141,8 +167,8 @@ function Register() {
           variant="outlined"
           margin="normal"
           onChange={handleChange('username')}
-          helperText={usernameState==="exists" ? "This username is already used!" : ""}
-          error={(usernameState==="exists") ? true : false}
+          helperText={usernameState === "exists" ? "This username is already used!" : ""}
+          error={(usernameState === "exists") ? true : false}
           sx={{ width: 300 }}
         />
 
@@ -152,8 +178,8 @@ function Register() {
           variant="outlined"
           margin="normal"
           onChange={handleChange('email')}
-          helperText={emailState==="exists" ? "This email is already used!" : emailState==="wrong" ? "Invalid Email":""}
-          error={(emailState==="exists"|emailState==="wrong") ? true : false}
+          helperText={emailState === "exists" ? "This email is already used!" : emailState === "wrong" ? "Invalid Email" : ""}
+          error={(emailState === "exists" | emailState === "wrong") ? true : false}
           sx={{ width: 300 }}
         />
 
@@ -181,18 +207,40 @@ function Register() {
         <Button
           variant="outlined"
           onClick={async () => {
-            try{
+            try {
               await axios.post("http://localhost:8000/register", values);
-            }catch(err){
+            } catch (err) {
               console.log(err);
             }
             navigate("/login");
           }}
-          sx={{marginTop:10}}
-          disabled={validateFields()?true:false}
+          sx={{ marginTop: 8, marginBottom: 2 }}
+          disabled={validateFields() ? true : false}
         >
 
           Register
+        </Button>
+        <br />
+        <GoogleLogin
+          clientId="236374376846-rjs664fki0dsr13hk6hlkv7o80hn0osk.apps.googleusercontent.com"
+          render={(renderProps) => (
+            <Button className="googleButton" color="primary" onClick={renderProps.onClick} disabled={renderProps.disabled} startIcon={<GoogleIcon />} variant="contained">
+              Google Sign In
+            </Button>
+          )}
+          onSuccess={googleSuccess}
+          onFailure={googleError}
+          cookiePolicy="single_host_origin"
+        />
+
+        <Button
+          variant="outlined"
+          onClick={() => {
+            navigate("/login");
+          }}
+          sx={{ marginTop: 8, marginBottom: 2 }}
+        >
+          I already have an account
         </Button>
 
 
