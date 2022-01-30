@@ -115,10 +115,9 @@ function Register() {
   }
 
   const googleSuccess = async (res) => {
-    console.log(res);
     const token = res?.tokenId;
-    const user = res?.Ju.tf;
-    const email = res?.Ju.zv;
+    const user = res?.profileObj.name;
+    const email = res?.profileObj.email;
 
     localStorage.setItem("token", JSON.stringify(token));
     localStorage.setItem("user", JSON.stringify(user));

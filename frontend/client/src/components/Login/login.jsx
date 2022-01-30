@@ -78,10 +78,9 @@ function Login() {
   }
 
   const googleSuccess = async (res) => {
-    console.log(res);
     const token = res?.tokenId;
-    const user = res?.Ju.tf;
-    const email = res?.Ju.zv;
+    const user = res?.profileObj.name;
+    const email = res?.profileObj.email;
 
     if (checked) {
       localStorage.setItem("token", JSON.stringify(token));
@@ -91,8 +90,6 @@ function Login() {
       sessionStorage.setItem("user", JSON.stringify(user));
       sessionStorage.setItem("type", JSON.stringify("google"));
     } else {
-
-
       sessionStorage.setItem("token", JSON.stringify(token));
       sessionStorage.setItem("user", JSON.stringify(user));
       sessionStorage.setItem("type", JSON.stringify("google"));
@@ -102,6 +99,8 @@ function Login() {
       username: user,
       email: email,
     }
+
+    console.log(details)
 
     await axios.post("http://localhost:8000/googleregisterlogin", details)
 
