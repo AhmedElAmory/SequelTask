@@ -16,6 +16,8 @@
     "dotenv": "^14.3.2",
     "express": "^4.17.2",
     "express-session": "^1.17.2",
+    "generate-password": "^1.7.0",
+    "google-auth-library": "^7.11.0",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.1.8",
     "nodemon": "^2.0.15"

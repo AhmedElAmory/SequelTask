@@ -8,7 +8,7 @@ import {
   IconButton,
   Button
 } from '@mui/material';
-import {GoogleLogin} from 'react-google-login';
+import { GoogleLogin } from 'react-google-login';
 import GoogleIcon from '@mui/icons-material/Google';
 
 
@@ -38,55 +38,67 @@ function Login() {
   const handleChange = (prop) => (event) => {
     setValues({ ...values, [prop]: event.target.value });
   };
-  
+
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
   }
 
   const handleSubmit = async () => {
-    try{
+    try {
       let res = await axios.post("http://localhost:8000/login", values)
-      if(res.data==="wrong username"){
+      if (res.data === "wrong username") {
         setUsernameState("wrong");
         setPasswordState("");
         return;
-      }else if(res.data==="wrong password"){
+      } else if (res.data === "wrong password") {
         setUsernameState("");
         setPasswordState("wrong");
         return;
-      }else{
+      } else {
         localStorage.setItem("token", JSON.stringify(res.data.token));
         localStorage.setItem("user", JSON.stringify(res.data.username));
+        localStorage.setItem("type", JSON.stringify("jwt"));
         navigate("/profile");
       }
-    }catch(err){
+    } catch (err) {
       console.log(err);
     }
   }
 
   const googleSuccess = async (res) => {
     console.log(res);
-    const result = res?.profileObj;
     const token = res?.tokenId;
+    const user = res?.Ju.tf;
+    const email = res?.Ju.zv;
 
+    localStorage.setItem("token", JSON.stringify(token));
+    localStorage.setItem("user", JSON.stringify(user));
+    localStorage.setItem("type", JSON.stringify("google"));
+
+    const details = {
+      username: user,
+      email: email,
+    }
+
+    await axios.post("http://localhost:8000/googleregisterlogin", details)
+
+    navigate("/profile")
     try {
-      // dispatch({ type: AUTH, data: { result, token } });
 
-      // history.push('/');
     } catch (error) {
       console.log(error);
     }
   };
 
   const googleError = () => console.log('Google Sign In was unsuccessful. Try again later');
-  
+
   useEffect(() => {
     // console.log(values);
   });
 
-  const validateFields = ()=>{
-    for(let value in values){
-      if(values[value]===""){
+  const validateFields = () => {
+    for (let value in values) {
+      if (values[value] === "") {
         return true;
       }
     }
@@ -122,8 +134,8 @@ function Login() {
           variant="outlined"
           margin="normal"
           onChange={handleChange('username')}
-          helperText={usernameState==="wrong" ? "This username does not exist!" : ""}
-          error={(usernameState==="wrong") ? true : false}
+          helperText={usernameState === "wrong" ? "This username does not exist!" : ""}
+          error={(usernameState === "wrong") ? true : false}
           sx={{ width: 300 }}
         />
 
@@ -134,8 +146,8 @@ function Login() {
           margin="normal"
           onChange={handleChange('password')}
           type={showPassword ? 'text' : 'password'}
-          helperText={passwordState==="wrong" ? "Incorrect Password!" : ""}
-          error={(passwordState==="wrong") ? true : false}
+          helperText={passwordState === "wrong" ? "Incorrect Password!" : ""}
+          error={(passwordState === "wrong") ? true : false}
           InputProps={{
             endAdornment: <InputAdornment position="end">
               <IconButton
@@ -153,23 +165,23 @@ function Login() {
         <Button
           variant="outlined"
           onClick={handleSubmit}
-          sx={{marginTop:5, marginBottom:5}}
-          disabled={validateFields()?true:false}
+          sx={{ marginTop: 5, marginBottom: 5 }}
+          disabled={validateFields() ? true : false}
         >
           Login
         </Button>
-        <br/>
+        <br />
         <GoogleLogin
-            clientId="236374376846-rjs664fki0dsr13hk6hlkv7o80hn0osk.apps.googleusercontent.com"
-            render={(renderProps) => (
-              <Button className="googleButton" color="primary" onClick={renderProps.onClick} disabled={renderProps.disabled} startIcon={<GoogleIcon/>} variant="contained">
-                Google Sign In
-              </Button>
-            )}
-            onSuccess={googleSuccess}
-            onFailure={googleError}
-            cookiePolicy="single_host_origin"
-          />
+          clientId="236374376846-rjs664fki0dsr13hk6hlkv7o80hn0osk.apps.googleusercontent.com"
+          render={(renderProps) => (
+            <Button className="googleButton" color="primary" onClick={renderProps.onClick} disabled={renderProps.disabled} startIcon={<GoogleIcon />} variant="contained">
+              Google Sign In
+            </Button>
+          )}
+          onSuccess={googleSuccess}
+          onFailure={googleError}
+          cookiePolicy="single_host_origin"
+        />
 
       </Box>
     </div>
