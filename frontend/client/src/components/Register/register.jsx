@@ -149,7 +149,7 @@ function Register() {
           backgroundColor: 'white',
           marginLeft: 'auto',
           marginRight: 'auto',
-          marginTop: 20,
+          marginTop: 3,
           borderRadius: '25px',
           boxShadow: 5,
           padding: 4

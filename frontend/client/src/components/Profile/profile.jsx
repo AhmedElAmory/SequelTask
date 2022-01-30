@@ -199,11 +199,11 @@ function Profile() {
       <Box
         sx={{
           width: 500,
-          height: 750,
+          height: 700,
           backgroundColor: 'white',
           marginLeft: 'auto',
           marginRight: 'auto',
-          marginTop: 5,
+          marginTop: 3,
           borderRadius: '25px',
           boxShadow: 5,
           padding: 3,
@@ -271,13 +271,13 @@ function Profile() {
             backgroundColor: '#CAE9F5',
             borderRadius: '25px',
             boxShadow: 2,
-            padding: 3,
+            padding: 2,
             display: "flex",
             flexDirection: "column",
             alignContent: "center",
             alignItems: "center",
-            width: '350px',
-            marginBottom: 2
+            width: '380px',
+            marginBottom: 1
 
           }}
         >
