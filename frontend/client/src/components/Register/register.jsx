@@ -35,35 +35,80 @@ function Register() {
   });
 
   const [showPassword, setShowPassword] = useState(false);
+  const [emailState, setEmailState] = useState("empty");
+  const [usernameState, setUsernameState] = useState();
 
   const handleChange = (prop) => (event) => {
     setValues({ ...values, [prop]: event.target.value });
   };
-
+  
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
   }
-
+  
   useEffect(() => {
+    console.log(values);
+    validateEmail(values['email']);
+    validateUsername(values['username']);
   });
 
-  const validateEmail = (email) => {
-    if (email === "") return true;
-    var re = /\S+@\S+\.\S+/;
-    return re.test(email);
+  const validateEmail = async (email) => {
+    if(email===""){
+      setEmailState("empty");
+      return;
+    }
+
+    let exists=false;
+    try{
+      let res = await axios.post("http://localhost:8000/checkemail", {email:values.email});
+      exists=res.data;
+    }catch(err){
+      console.log(err);
+    }
+
+    if(!exists){
+      var re = /\S+@\S+\.\S+/;
+      if(re.test(email)){
+        console.log("i am here");
+        setEmailState("ok");
+      }else{
+        setEmailState("wrong");
+      }
+    }else{
+      setEmailState("exists");
+    }
+
+  }
+
+  const validateUsername = async (username) => {
+    if(username===""){
+      setUsernameState("empty");
+      return;
+    }
+
+    let exists=false;
+    try{
+      let res = await axios.post("http://localhost:8000/checkusername", {username:values.username});
+      exists=res.data;
+    }catch(err){
+      console.log(err);
+    }
+
+    if(!exists){
+      setUsernameState("ok");
+    }else{
+      setUsernameState("exists");
+    }
+
   }
 
   const validateFields = ()=>{
-    console.log(values)
     for(let value in values){
-      console.log("I am true!"+value)
       if(values[value]===""){
         return true;
       }
     }
-
-    if(!validateEmail(values['email'])) return true;
-
+    if(emailState!=="ok"|usernameState!=="ok") return true;
     return false;
   }
 
@@ -96,6 +141,8 @@ function Register() {
           variant="outlined"
           margin="normal"
           onChange={handleChange('username')}
+          helperText={usernameState==="exists" ? "This username is already used!" : ""}
+          error={(usernameState==="exists") ? true : false}
           sx={{ width: 300 }}
         />
 
@@ -105,8 +152,8 @@ function Register() {
           variant="outlined"
           margin="normal"
           onChange={handleChange('email')}
-          helperText={!validateEmail(values.email) ? "Invalid Email" : ""}
-          error={!validateEmail(values.email) ? true : false}
+          helperText={emailState==="exists" ? "This email is already used!" : emailState==="wrong" ? "Invalid Email":""}
+          error={(emailState==="exists"|emailState==="wrong") ? true : false}
           sx={{ width: 300 }}
         />
 

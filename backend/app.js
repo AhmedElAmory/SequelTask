@@ -37,7 +37,27 @@ app.post("/register", async (req, res) => {
   }
 });
 
+app.post("/checkemail", async (req, res) => {
+  if (req.body.email != undefined) {
+    let user = await User.findOne({ email: req.body.email });
+    if (user != null) {
+      res.send(true);
+    }else{
+      res.send(false);
+    }
+  }
+});
 
+app.post("/checkusername", async (req, res) => {
+  if (req.body.username != undefined) {
+    let user = await User.findOne({ username: req.body.username });
+    if (user != null) {
+      res.send(true);
+    }else{
+      res.send(false);
+    }
+  }
+});
 
 // Starting server
 app.listen(port, () => {
