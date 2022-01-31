@@ -48,7 +48,16 @@ function Register() {
     setShowPassword(!showPassword);
   }
 
+  useEffect(()=>{
+    let token = JSON.parse(localStorage.getItem('token'));
+
+    if (token) {
+      navigate('/profile');
+    }
+  },[]);
+
   useEffect(() => {
+
     console.log(values);
     validateEmail(values['email']);
     validateUsername(values['username']);

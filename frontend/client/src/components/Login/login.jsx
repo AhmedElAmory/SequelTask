@@ -115,8 +115,12 @@ function Login() {
   const googleError = () => console.log('Google Sign In was unsuccessful. Try again later');
 
   useEffect(() => {
-    // console.log(values);
-  });
+    let token = JSON.parse(localStorage.getItem('token'));
+
+    if (token) {
+      navigate('/profile');
+    }
+  },[]);
 
   const validateFields = () => {
     for (let value in values) {
